@@ -5,6 +5,8 @@ A module to order the querystring parameters in a variable to be used as cache k
 
 Requests like /index.html?b=2&a=1&c=3, /index.html?b=2&c=3&a=1, /index.html?c=3&a=1&b=2, /index.html?c=3&b=2&a=1 will produce the same value for `$sorted_querystring_args` _'a=1&b=2&c=3'_.
 
+It is also possible remove some undesired parameter defining its name with `sorted_querysting_filter_parameter`, like `sorted_querysting_filter_parameter b _ foo;` resulting in a `$sorted_querystring_args` as _'a=1&c=3'_
+
 _This module is not distributed with the Nginx source. See [the installation instructions](#installation)._
 
 
@@ -46,6 +48,17 @@ An example:
 
       access_log       logs/nginx-http_access.log main;
 
+      location /filtered {
+        sorted_querysting_filter_parameter v _ time b;
+
+        proxy_set_header Host "static_files_server";
+        proxy_pass http://localhost:8081;
+
+        proxy_cache zone;
+        proxy_cache_key "$sorted_querystring_args";
+        proxy_cache_valid 200 1m;
+      }
+
       location / {
         proxy_pass http://localhost:8081;
 
@@ -69,6 +82,12 @@ Variables
 ---------
 
 * **$sorted_querystring_args** - just list the IP considered as remote IP on the connection
+
+
+Directives
+----------
+
+* **sorted_querystring_filter_parameter** - list parameters to be filtered while using the `$sorted_querystring_args` variable.
 
 
 <a id="installation"></a>Installation instructions
