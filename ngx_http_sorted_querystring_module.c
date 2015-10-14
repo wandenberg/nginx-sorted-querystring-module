@@ -266,7 +266,7 @@ ngx_http_sorted_querystring_args_variable(ngx_http_request_t *r, ngx_http_variab
         }
     }
 
-    var->len = p - var->data - 1;
+    var->len = (p > var->data) ? p - var->data - 1 : 0;
 
     return NGX_OK;
 }
