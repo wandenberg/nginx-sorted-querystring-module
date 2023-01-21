@@ -14,6 +14,19 @@ describe "check sorted querystring module" do
     end
   end
 
+  it "should support arrays like parameters" do
+    nginx_run_server do
+      EventMachine.run do
+        req = EventMachine::HttpRequest.new("#{nginx_address}/?a=2&c[]=3&=6&a=1&=5&b=2&c[]=1&c[]=2").get
+        req.callback do
+          expect(req).to be_http_status(200)
+          expect(req.response).to be === '{"args": "a=2&c[]=3&=6&a=1&=5&b=2&c[]=1&c[]=2", "sorted_args": "=5&=6&a=1&a=2&b=2&c[]=1&c[]=2&c[]=3"}'
+          EventMachine.stop
+        end
+      end
+    end
+  end
+
   it "should filter specified parameters" do
     nginx_run_server({filter_parameter: ["c", "_"]}) do
       EventMachine.run do
